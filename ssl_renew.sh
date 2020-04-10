@@ -1,9 +1,6 @@
-#!/bin/bash
-
-COMPOSE="/usr/local/bin/docker-compose --no-ansi"
-DOCKER="/usr/bin/docker"
-DIR="<YOUR_DIR_HERE>"
+DOCKER="$(which docker) container"
+DIR="<YOUR DIR HERE>"
+VOLUMES="-v $DIR/certs:/etc/letsencrypt -v certbot-var:/var/lib/letsencrypt -v web-root:/var/www/html"
 
 cd $DIR
-$COMPOSE run --no-deps certbot renew && $COMPOSE kill -s SIGHUP nginx
-$DOCKER system prune -af
+$DOCKER run --rm $VOLUMES certbot/certbot --renew

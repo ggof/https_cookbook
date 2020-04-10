@@ -15,7 +15,7 @@ services:
             - "80:80"
             - "443:443"
         volumes:
-            - certbot-etc:/etc/letsencrypt
+            - ./certs:/etc/letsencrypt
             - certbot-var:/var/lib/letsencrypt
             - web-root:/var/www/html
             - ./nginx:/etc/nginx/conf.d
@@ -23,14 +23,14 @@ services:
         networks: 
             - in_docker
 
-    certbot:
-        image: certbot/certbot
-        depends_on: 
-            - nginx
-        networks: 
-            - in_docker
-        volumes: 
-            - certbot-etc:/etc/letsencrypt
-            - certbot-var:/var/lib/letsencrypt
-            - web-root:/var/www/html
-        command: certonly --webroot --webroot-path=/var/www/html --email <YOUR_EMAIL> --agree-tos --no-eff-email --force-renewal -d <YOUR_DOMAIN_NAME>
+#   certbot:
+#       image: certbot/certbot
+#       depends_on: 
+#           - nginx
+#       networks: 
+#           - in_docker
+#       volumes: 
+#           - ./certs:/etc/letsencrypt
+#           - certbot-var:/var/lib/letsencrypt
+#           - web-root:/var/www/html
+#       command: certonly --webroot --webroot-path=/var/www/html --email <YOUR_EMAIL> --agree-tos --no-eff-email --staging -d <YOUR_DOMAIN_NAME>
