@@ -5,10 +5,8 @@ and you might need some tinkering. Here are the steps to start this
 repository from scratch : 
 
 - Clone this repo and `cd in_docker`.
-- Create your Diffie-Hellman parameters for better security. To do that run 
-```bash
-mkdir dhparams && sudo openssl dhparam -out $(pwd)/dhparams/dhparam-2048.pem 2048
-```
+- Run the script `init.sh`, which will ask you for sudo rights (to create 
+the Diffie-Hellman keys).
 - Open the nginx conf from `nginx/nginx.conf`. This config has been 
 intentionaly left generic. Modify it as you need (at least modify **ALL** 
 the fields enclosed with `<>`).
@@ -19,8 +17,9 @@ You can modify the `nginx` part, but It will be much easier if you don't.
 docker swarm init
 docker stack deploy --compose-file stack.yml
 ```
-- Modify and run the file `ssl_staging.sh` to validate your configuration is correct.
-- If everything went well, you can now modify and run the file `ssl_prod.sh`. 
+- Modify `ssl_staging.sh` by adding your own domain and the 
+directory your app lives in and run it to validate your configuration is correct.
+- If everything went well, you can now modify and run the file `ssl_prod.sh` the same way. 
 This will create your "real" certificates, and put them in the `certs` directory.
 - Once this is done, you should have HTTPS certificates. You now need to enable 
 the HTTPS config in `nginx/nginx.conf`.
@@ -28,7 +27,7 @@ the HTTPS config in `nginx/nginx.conf`.
 Also replace everything that is enclosed with `<>` with your own data. Save and exit.
 - Reload your nginx container with : 
 ```bash
-docker-compose kill -s SIGHUP nginx
+docker service update --force --stop-signal SIGHUP in_docker_nginx
 ```
 - Modify the `ssl_renew.sh` script to use your project directory for the 
 parameter `DIR`. 
