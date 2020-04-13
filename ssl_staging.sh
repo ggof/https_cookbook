@@ -7,4 +7,4 @@ EMAIL="<YOUR EMAIL HERE>"
 DOMAINS="-d <YOUR DOMAIN HERE>"
 
 cd $DIR
-$DOCKER container run --rm $VOLUMES --network in_docker_in_docker certbot/certbot certonly --webroot --webroot-path=/var/www/html --email $EMAIL --agree-tos --no-eff-email --staging $DOMAINS
+$DOCKER container run --rm $VOLUMES --network $(cat stack_name.txt)_in_docker certbot/certbot certonly --webroot --webroot-path=/var/www/html --email $EMAIL --agree-tos --no-eff-email --staging $DOMAINS
