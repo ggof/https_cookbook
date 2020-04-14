@@ -1,38 +1,30 @@
 ### INITIAL SETUP
-To use this docker-compose, please read the instructions first.
+To use this with docker swarm, please read the instructions first.
 The configurations needed are not what you could call "straightforward",
 and you might need some tinkering. Here are the steps to start this 
 repository from scratch : 
 
 - Clone this repo and `cd in_docker`.
-- Create your Diffie-Hellman parameters for better security. To do that run 
-```bash
-mkdir dhparams && sudo openssl dhparam -out $(pwd)/dhparams/dhparam-2048.pem 2048
-```
 - Open the nginx conf from `nginx/nginx.conf`. This config has been 
 intentionaly left generic. Modify it as you need (at least modify **ALL** 
 the fields enclosed with `<>`).
-- Run the docker-compose file and get the output logs from `certbot` with
-```bash
-docker-compose up -d
-docker-compose logs certbot
-```
-- If all went well, you are now ready for the next step.
-- Modify the `command` portion of `docker-compose.yml` again to replace 
-the `--staging` option with `--force-renewal` option. Save and exit.
-- Run the following command : 
-```bash
-docker-compose up --force-recreate --no-deps certbot
-```
-This wil run the certbot container (which will create your certificates) without breaking 
-the existing containers.
+- Modify the current docker-compose (`stack.yml`) file so that it suits your project. 
+You can modify the `nginx` part, but It will be much easier if you don't.
+- Run the script `init.sh`, which will ask you for sudo rights. This will create your 
+Diffie-Hellman keys for encryption and will also init a swarm and deploy the stack to it.
+**TAKE NOTE**: The name of the stack is the string written in the file `stack_name.txt`. 
+If you want another stack name, change it in this file.
+- Modify `ssl_staging.sh` by adding your own domain and the 
+directory your app lives in and run it to validate your configuration is correct.
+- If everything went well, you can now modify and run the file `ssl_prod.sh` the same way. 
+This will create your "real" certificates, and put them in the `certs` directory.
 - Once this is done, you should have HTTPS certificates. You now need to enable 
 the HTTPS config in `nginx/nginx.conf`.
 - Open `nginx/nginx.conf` and uncomment the `server` block that handles port 443. 
 Also replace everything that is enclosed with `<>` with your own data. Save and exit.
 - Reload your nginx container with : 
 ```bash
-docker-compose kill -s SIGHUP nginx
+docker service update --force --stop-signal SIGHUP $(cat stack_name.txt)_nginx
 ```
 - Modify the `ssl_renew.sh` script to use your project directory for the 
 parameter `DIR`. 
@@ -53,3 +45,8 @@ reloads its config.
 
 And that's it, you're good to go! you should now have an HTTPS-enabled project!
 
+Note that running in swarm mode has several advantages versus the good old 
+docker-compose setup. First, updating containers to a newer version is easier. 
+Second, the use of a swarm allows for some monitoring. Third, it uses the exact 
+same file format as docker-compose, so modifying your already existing file to fit 
+a swarm shouldn't be very tedious. 

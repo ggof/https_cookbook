@@ -1,2 +1,4 @@
 dhparams/*
 dhparam/*
+certs/*
+var/*
