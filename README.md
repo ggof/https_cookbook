@@ -5,18 +5,15 @@ and you might need some tinkering. Here are the steps to start this
 repository from scratch : 
 
 - Clone this repo and `cd in_docker`.
-- Run the script `init.sh`, which will ask you for sudo rights (to create 
-the Diffie-Hellman keys).
 - Open the nginx conf from `nginx/nginx.conf`. This config has been 
 intentionaly left generic. Modify it as you need (at least modify **ALL** 
 the fields enclosed with `<>`).
 - Modify the current docker-compose (`stack.yml`) file so that it suits your project. 
 You can modify the `nginx` part, but It will be much easier if you don't.
-- Initialise the swarm and deploy it with 
-```bash
-docker swarm init
-docker stack deploy --compose-file stack.yml
-```
+- Run the script `init.sh`, which will ask you for sudo rights. This will create your 
+Diffie-Hellman keys for encryption and will also init a swarm and deploy the stack to it.
+**TAKE NOTE**: The name of the stack is the string written in the file `stack_name.txt`. 
+If you want another stack name, change it in this file.
 - Modify `ssl_staging.sh` by adding your own domain and the 
 directory your app lives in and run it to validate your configuration is correct.
 - If everything went well, you can now modify and run the file `ssl_prod.sh` the same way. 
@@ -27,7 +24,7 @@ the HTTPS config in `nginx/nginx.conf`.
 Also replace everything that is enclosed with `<>` with your own data. Save and exit.
 - Reload your nginx container with : 
 ```bash
-docker service update --force --stop-signal SIGHUP in_docker_nginx
+docker service update --force --stop-signal SIGHUP $(cat stack_name.txt)_nginx
 ```
 - Modify the `ssl_renew.sh` script to use your project directory for the 
 parameter `DIR`. 
@@ -48,3 +45,8 @@ reloads its config.
 
 And that's it, you're good to go! you should now have an HTTPS-enabled project!
 
+Note that running in swarm mode has several advantages versus the good old 
+docker-compose setup. First, updating containers to a newer version is easier. 
+Second, the use of a swarm allows for some monitoring. Third, it uses the exact 
+same file format as docker-compose, so modifying your already existing file to fit 
+a swarm shouldn't be very tedious. 
